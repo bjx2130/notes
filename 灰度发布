@@ -1,1 +1,63 @@
+		
+1.在api网关zuul引入以下包，在创建GrayFilter类	
+		
+		<dependency>
+			<groupId>io.jmnarloch</groupId>
+			<artifactId>ribbon-discovery-filter-spring-cloud-starter</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
+
+		package com.huawei.cloudopenlabs.portal.getaway.filter;
+
+		import javax.servlet.http.HttpServletRequest;
+		import org.springframework.context.annotation.Configuration;
+		import com.netflix.zuul.ZuulFilter;
+		import com.netflix.zuul.context.RequestContext;
+		import io.jmnarloch.spring.cloud.ribbon.support.RibbonFilterContextHolder;
+
+		/**
+		 * 
+		 * @author bWX535804
+		 *
+		 */
+		@Configuration
+		public class GrayFilter extends ZuulFilter {
+			@Override
+			public int filterOrder() {
+				return 0;
+			}
+
+			@Override
+			public String filterType() {
+				return "pre";
+			}
+
+			@Override
+			public boolean shouldFilter() {
+				RequestContext ctx = RequestContext.getCurrentContext();
+				HttpServletRequest request = ctx.getRequest();
+				return request.getHeader("grayInstanceId")!=null;
+			}
+
+			@Override
+			public Object run() {
+				RequestContext ctx = RequestContext.getCurrentContext();
+				HttpServletRequest request = ctx.getRequest();
+				//从Header中取出实例Id
+				String grayInstanceId = request.getHeader("grayInstanceId");
+				//指定要跳转服务名为 grayInstanceId 的服务实例例
+				RibbonFilterContextHolder.getCurrentContext().add("lancher", grayInstanceId);
+				return null;
+			}
+		}
+
+
+2.消费服务实例 application.properties 设置以下属性
+		eureka.instance.instanceId=bjx-ecol
+		eureka.instance.metadata-map.lancher=${eureka.instance.instanceId}
+
+
+
+3.客户端调用时需要添加头信息 grayInstanceId=bjx-ecol
 
