@@ -1,0 +1,15 @@
+    
+	第一种方式：
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager"/>
+    
+	第二种方式：
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="contentNegotiationManager" ref="contentNegotiationManager"/>
+	</bean>
+
+	###初始化ContentNegotiationManagerFactoryBean配置############
+	<bean id="contentNegotiationManager"
+		class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<!-- 是否根据路径拓展名确定MIME类型 -->
+		<property name="favorPathExtension" value="false" />
+	</bean>
