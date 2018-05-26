@@ -1,0 +1,13 @@
+
+一、基数
+	Cardinality = select distinct column[列] from table[表]
+二、选择性
+	selectivity = Cardinality[基数]/rows[总行数]*100%
+	选择性越高：越有利于使用索引,20%以上就算是比较高了，说明数据分布均衡		
+三、直方图
+	HISTOGRAM：当某列数据分布不均衡(不均衡表示选择性很小)，为了让CBO能生成最佳的执行计划，我们可能需要对表收集直方图
+四、聚簇因子
+	如果ClusteringFactor接近于表存储的块数，说明这张表是按照索引字段的顺序存储的。
+	如果ClusteringFactor接近于行的数量，那说明这张表不是按索引字段顺序存储的。
+
+	
