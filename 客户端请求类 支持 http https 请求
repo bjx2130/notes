@@ -13,7 +13,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -108,7 +108,7 @@ public class URLClientUtil
     	return getClient(null);
     }
     
-    public  CloseableHttpClient getClient(HttpRequestBase http){
+    public  CloseableHttpClient getClient(HttpUriRequest http){
     	String scheme = http.getURI().getScheme();
     	if(HTTPS.equals(scheme)){
     		return   HttpClients.custom().setSSLSocketFactory(sslsf).build();
@@ -127,6 +127,7 @@ public class URLClientUtil
      * @return
      */
     public String post(String url,Map<String,String> params) {
+    	CloseableHttpClient client = null;
     	CloseableHttpResponse httpResponse = null;
     	try {
 		
@@ -143,16 +144,17 @@ public class URLClientUtil
 			}
 			UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(formparams, "UTF-8");
 			http.setEntity(uefEntity);
-			httpResponse = this.getClient(http).execute(http);
+			client = this.getClient(http);
+			httpResponse = client.execute(http);
    		 	HttpEntity entity =  httpResponse.getEntity();
 			
 			return EntityUtils.toString(entity, "UTF-8");
     	} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}finally {
 			try {
+				client.close();
 				httpResponse.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -167,10 +169,12 @@ public class URLClientUtil
      * @return
      */
     public  byte[] downLoad(String url){
+    	CloseableHttpClient client = null;
     	CloseableHttpResponse httpResponse = null;
    	 	try {
    		 	HttpPost http = new HttpPost(url);
-   		 	httpResponse = this.getClient(http).execute(http);
+   		 	client = this.getClient(http);
+   		 	httpResponse = client.execute(http);
    		 	HttpEntity entity =  httpResponse.getEntity();
    		 	return EntityUtils.toByteArray(entity);
 		} catch (IOException e) {
@@ -178,6 +182,7 @@ public class URLClientUtil
 			return null;
 		}finally{
 			try {
+				client.close();
 				httpResponse.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -195,6 +200,6 @@ public class URLClientUtil
 //	   System.out.println(b.length+"   <<<<<<");
 //   } 
 //    
-    
+// 其他参考资源:http://eksliang.iteye.com/blog/2191017      
     
 }
