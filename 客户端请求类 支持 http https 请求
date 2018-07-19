@@ -1,0 +1,200 @@
+package com.huawei.cloudopenlabs.portal.ecological.util;
+
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 客户端请求类 支持 http https 请求
+ * 
+ * 
+ * @author bWX535804
+ *
+ */
+public class URLClientUtil
+{
+	
+	private static Logger log = LoggerFactory.getLogger(URLClientUtil.class);
+    private static final String HTTP = "http";
+
+    private static final String HTTPS = "https";
+
+    private static SSLConnectionSocketFactory sslsf = null;
+
+    private static PoolingHttpClientConnectionManager cm = null;
+
+    private static SSLContextBuilder builder = null;
+
+    private static URLClientUtil httpsClientUtil = null;
+    
+    
+    /**
+     * 初始化http 和 https 客户端 httpClient 和 httpsClient
+     */
+    static
+    {
+        try
+        {
+            builder = new SSLContextBuilder();
+            // 全部信任 不做身份鉴定
+            builder.loadTrustMaterial(null, new TrustStrategy()
+            {
+                @Override
+                public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException
+                {
+                    return true;
+                }
+            });
+            // builder.loadTrustMaterial(new File(""), "123".toCharArray(), new
+            // TrustSelfSignedStrategy());
+            sslsf = new SSLConnectionSocketFactory(builder.build(), new String[] {"SSLv2Hello", "TLSv1", "TLSv1.2",},
+                    null, NoopHostnameVerifier.INSTANCE);
+            Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory> create()
+                    .register(HTTP, new PlainConnectionSocketFactory()).register(HTTPS, sslsf).build();
+            cm = new PoolingHttpClientConnectionManager(registry);
+            cm.setMaxTotal(2000);// max connection
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static URLClientUtil getInstance()
+    {
+        if (httpsClientUtil == null)
+        {
+            synchronized (URLClientUtil.class)
+            {
+                if (httpsClientUtil == null)
+                {
+                    httpsClientUtil = new URLClientUtil();
+                }
+            }
+        }
+
+        return httpsClientUtil;
+    }
+    
+    
+    
+    public  CloseableHttpClient getClient(){
+    	return getClient(null);
+    }
+    
+    public  CloseableHttpClient getClient(HttpRequestBase http){
+    	String scheme = http.getURI().getScheme();
+    	if(HTTPS.equals(scheme)){
+    		return   HttpClients.custom().setSSLSocketFactory(sslsf).build();
+    	}else if(HTTP.equals(scheme)){
+    		return HttpClients.createDefault();
+    	}else {
+    		log.info(" >>>>>>>>> 获取CloseableHttpClient 失败 <<<<<<<<<<<<  scheme:{}",scheme);
+    		return null;
+    	}
+    }
+    
+    /**
+     * 提交表单
+     * @param url
+     * @param params
+     * @return
+     */
+    public String post(String url,Map<String,String> params) {
+    	CloseableHttpResponse httpResponse = null;
+    	try {
+		
+	    	RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();//设置请求和传输超时时间
+	    	HttpPost http = new HttpPost(url);
+	    	http.setConfig(requestConfig);
+	    	
+			// 创建参数队列
+			List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+			if(params.size()>0){
+				for (Map.Entry<String, String> entry : params.entrySet()) {
+					formparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+				}
+			}
+			UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(formparams, "UTF-8");
+			http.setEntity(uefEntity);
+			httpResponse = this.getClient(http).execute(http);
+   		 	HttpEntity entity =  httpResponse.getEntity();
+			
+			return EntityUtils.toString(entity, "UTF-8");
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}finally {
+			try {
+				httpResponse.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+    
+    
+    /**
+     * 下载文件
+     * @param url
+     * @return
+     */
+    public  byte[] downLoad(String url){
+    	CloseableHttpResponse httpResponse = null;
+   	 	try {
+   		 	HttpPost http = new HttpPost(url);
+   		 	httpResponse = this.getClient(http).execute(http);
+   		 	HttpEntity entity =  httpResponse.getEntity();
+   		 	return EntityUtils.toByteArray(entity);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}finally{
+			try {
+				httpResponse.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+   }
+    
+    
+    
+//    
+//
+//    
+//   public static void main(String[] args) {
+//	   byte[] b= URLClientUtil.getInstance().downLoad("https://dggpcolp00003.huawei.com/col/was/resource//Content/Images/EcologicalProgress/CertificateFile/Mirantis%20OpenStack_%20Agile%20Controller-DCN%20V200R001%E5%8D%8E%E4%B8%BA%E6%8A%80%E6%9C%AF%E8%AE%A4%E8%AF%81%E9%A1%B9%E7%9B%AE.png");
+//	   System.out.println(b.length+"   <<<<<<");
+//   } 
+//    
+    
+    
+}
