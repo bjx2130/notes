@@ -1,0 +1,45 @@
+索引扫描又分五种：
+
+INDEX UNIQUE SCAN（索引唯一扫描）
+INDEX RANGE SCAN（索引范围扫描）
+INDEX FULL SCAN（索引全扫描）
+INDEX FAST FULL SCAN（索引快速扫描）
+INDEX SKIP SCAN（索引跳跃扫描）
+(a).INDEX UNIQUE SCAN（索引唯一扫描）：
+
+针对唯一性索引（UNIQUE INDEX）的扫描，每次至多只返回一条记录,主要针对该字段为主键或者唯一；
+
+(b). INDEX RANGE SCAN（索引范围扫描）
+
+使用一个索引存取多行数据；
+
+发生索引范围扫描的三种情况：
+
+在唯一索引列上使用了范围操作符（如：>   <   <>   >=   <=   between）
+在组合索引上，只使用部分列进行查询（查询时必须包含前导列，否则会走全表扫描）
+对非唯一索引列上进行的任何查询
+(c). INDEX FULL SCAN（索引全扫描）
+
+进行全索引扫描时，查询出的数据都必须从索引中可以直接得到
+(d). INDEX FAST FULL SCAN（索引快速扫描）
+
+扫描索引中的所有的数据块，与 INDEX FULL SCAN 类似，但是一个显著的区别是它不对查询出的数据进行排序（即数据不是以排序顺序被返回）
+(e). INDEX SKIP SCAN（索引跳跃扫描）：
+
+Oracle 9i后提供，有时候复合索引的前导列（索引包含的第一列）没有在查询语句中出现，oralce也会使用该复合索引，这时候就使用的INDEX SKIP SCAN;
+
+当Oracle发现前导列的唯一值个数很少时，会将每个唯一值都作为常规扫描的入口，在此基础上做一次查找，最后合并这些查询；
+
+例如：
+
+假设表emp有ename（雇员名称）、job（职位名）、sex（性别）三个字段，并且建立了如 create index idx_emp on emp (sex, ename, job) 的复合索引；
+
+因为性别只有 '男' 和 '女' 两个值，所以为了提高索引的利用率，Oracle可将这个复合索引拆成 ('男', ename, job)，('女', ename, job) 这两个复合索引；
+
+当查询 select * from emp where job = 'Programmer' 时，该查询发出后：
+
+Oracle先进入sex为'男'的入口，这时候使用到了 ('男', ename, job) 这条复合索引，查找 job = 'Programmer' 的条目；
+
+再进入sex为'女'的入口，这时候使用到了 ('女', ename, job) 这条复合索引，查找 job = 'Programmer' 的条目；
+
+最后合并查询到的来自两个入口的结果集。
