@@ -1,0 +1,48 @@
+1.sql优化
+	表连接方式
+		嵌套，hash，排序合并
+	查询转换
+		子查询解嵌套，视图合并，连接谓词推入
+	执行计划看优化点：
+		access:会选择表或索引
+		filter:只做过滤，相当于nl连接	
+
+2.mybatis
+	级联:
+	缓存：  一级缓存: 基于PerpetualCache 的 HashMap本地缓存，其存储作用域为 Session，当 Session flush 或 close 之后，该Session中的所有 Cache 就将清空。
+
+		二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap存储，不同在于其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
+
+　　		对于缓存数据更新机制，当某一个作用域(一级缓存Session/二级缓存Namespaces)的进行了 C/U/D 操作后，默认该作用域下所有 select 中的缓存将被clear。
+	
+	mybatis缓存是线程安全的，基于ReentrantReadWriteLock 实现
+
+3.spring
+	设计模式：包含哪些设计模式 【ioc,di,aop】
+
+
+4.缓存中间件：redis 
+	
+		缓存更新模式
+			[旁读 (read-aside)、透读 (read through)、透写 (write through) 和后写 (write behind) 缓存]
+			1.模式1（Cache Aside） 先更新DB，在设置Cache失效
+			2.模式2（Wite Through）同步更新DB
+			3.模式3（Write Back）  异步更新DB
+
+5.消息中间件：kafka,rabit
+		消息可靠性：保证消息可达，消息不丢失
+		消息幂等性：消息重复消费
+
+
+6.多线程
+	
+
+7.jvm优化
+	内存模型
+	双亲委派机制
+
+
+8.自我介绍
+	提前准备
+9.未来规划
+	提前准备
