@@ -1,1 +1,5 @@
 https://blog.csdn.net/isea533/article/details/73435439
+
+
+
+<!-- 注意mybatis 的 configuration中各个属性配置的顺序应为：properties,settings,typeAliases,typeHandlers,objectFactory,objectWrapperFactory,reflectorFactory,plugins,environments,databaseIdProvider,mappers)-->
