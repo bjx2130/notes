@@ -21,9 +21,16 @@ https://mp.weixin.qq.com/s?__biz=MzI4NTA1MDEwNg==&mid=2650776522&idx=1&sn=fe5415
 https://mp.weixin.qq.com/s?__biz=MzI4NTA1MDEwNg==&mid=2650778022&idx=1&sn=aeba9f6c11a38445da4ca6ec79734263&chksm=f3f91c33c48e95259d9adea496b906c18ec5d24d08f8130e36a057cdd57b421711373a8526fc&mpshare=1&scene=1&srcid=0618hZUAU1WChppH5obesfPh&pass_ticket=V9nuHVFxuyRkqjlo%2BB2muklbEJIYbjL74hqRWYAyMce1kldyC9lewJ8fi270v3ob#rd
 
 
-
+#############################################################3
 
 https://download.oracle.com/otn/nt/instantclient/19300/instantclient-basic-windows.x64-19.3.0.0.0dbru.zip?AuthParam=1564644963_13985fd08d909085d31eb16a36bd9466
 
 
 http://files.allroundautomations.com/plsqldev1306x64.msi
+
+
+VPLSQL Developer 13 注册码，亲测有效！
+
+product code： 4vkjwhfeh3ufnqnmpr9brvcuyujrx3n3le
+serial Number：226959
+password: xs374ca
