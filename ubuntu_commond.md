@@ -15,3 +15,7 @@
         导出子系统： wsl --export Ubuntu E:\WSL\Ubuntu.tar
         导入子系统： wsl.exe --import Ubuntu_20190315 E:\WSL\Ubuntu_20190315 E:\WSL\Ubuntu.tar
         立即运行该Linux子系统: wsl --distribution Ubuntu_20190315
+        
+        
+mysql安装完成之后初始化服务        
+sudo mysql_secure_installation        
