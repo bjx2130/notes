@@ -1,4 +1,4 @@
-sed 's/¡¾oldStr¡¿/¡¾newStr¡¿/' zoo_sample.cfg
+sed 's/oldStr/newStr/' test.txt
 
-sed '/¡¾oldStr¡¿/c ¡¾newStr¡¿'   zoo_sample.cfg
+sed '/oldStr/c newStr'  test.txt
 
