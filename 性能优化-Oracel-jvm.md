@@ -1,4 +1,5 @@
-一 查询转换
+# 一 查询转换
+	
 	--------------------------------
 	子查询解嵌套 在where语句之后; 当where子查询中有 in,no in,exists,not exists 等，CBO会尝试将子查询展开，从而消除filter，子查询非嵌套的目的就是消除filter
 	视图合并在 where语句之前; filter是针对反连接和半连接的，谓词推入是针对from之后子查询
@@ -20,14 +21,13 @@
 		外联接视图合并：1.使用了外联接，2.视图SQL中不含[distinct,rownum, group by]等聚合函数，集合运算符 [union,minus,intersect]	外连接视图合并的前提条件是：要么视图被作为外连接的驱动表，要么该视图虽作为外连接的被驱动表但它的视图定义SQL语句中只包含一个表。不考虑SQL成本
 		
 		复杂视图合并：1.视图定义SQL语句中含有group by 或 distinct 的复杂视图
-		复杂视图对应的group by 或 distinct操作的延迟不一定能带来效率的提升，
-		
-1.group by 或 distinct操作能过滤大部分数据且表连接不能过滤，不合并	视图效率更好
-				2.group by 或 distinct不能能过滤大部分数据且表连接能过滤，合并视图				效率更好。
+				复杂视图对应的group by 或 distinct操作的延迟不一定能带来效率的提升，
+				1.group by 或 distinct操作能过滤大部分数据且表连接不能过滤，不合并视图效率更好
+				2.group by 或 distinct不能能过滤大部分数据且表连接能过滤，合并视图效率更好。
 				考虑SQL成本
 		
-		注意：1.[外链接]是指外部查询表和视图的联接方式
-			  2.解析函数，聚合函数，集合运算，order by ,rownum也可以防止视图合并与/*+ no_merge()*/ 作用一样
+		注意: 1.[外链接]是指外部查询表和视图的联接方式
+		      2.解析函数，聚合函数，集合运算，order by ,rownum也可以防止视图合并与/*+ no_merge()*/ 作用一样
 	
 	3.星形转换
 		星型转换的核心是将原星形连接中针对各个维度表的限制条件通过等价改写的方式以额外的子查询施加到事实表上，然后在通过对事实表上的各个连接列上已存在的位图索引间的位图操作(如按位与，按位或等)，来达到有效减少事实表上待访问的数据量，避免对事实表做全表扫描的目的。适合事实表数据量很大，维度表数据小
@@ -63,25 +63,24 @@
 			2.Oracle [对]目标SQL 的 IN 后面的子查询做子查询展开
 			
 
-二 表的联接方式
-	排序-合并联接：在条件为非等式的时候	，还有就是数据大到内存无法保存，需要外存排序
+# 二 表的联接方式
+	排序-合并联接：在条件为非等式的时候，还有就是数据大到内存无法保存，需要外存排序
 	
 	嵌套循环联接：
-			  1./*+ ordered use_nl(A表(有别名必须使用别名) B表)*/ (from 的表顺序必须和 		use_nl 中表顺序一样，提示才能生效)
+			  1./*+ ordered use_nl(A表(有别名必须使用别名) B表)*/ (from 的表顺序必须和use_nl 中表顺序一样，提示才能生效)
 			  2.[嵌套循环联接]适用驱动表返回结果集较小约1万行以内，并且联接的列上带有索引(指被驱动表关联列带有索引)，性能最好
 				  3.filter操作是netloop的优化(关联列，有重复数据,子查询受制外表驱动不能视图合并)
 	
 	散列联接：使用大表作为驱动表(大是指存储块大小)，大表只被全表扫描一次，小表被多次哈希探测
 		
 		
-三 扫描方式(全表扫描,索引扫描)
-		*表所选定的扫描方法被用来确定最终计划中所使用的[表联接方法和联接顺序]
-		全表扫描：此扫描是否高效取决于需要访问的数据块以及返回结果集行数
-		索引快速扫描：count(*) 走快速扫描
-		索引唯一扫描：查询条件 列存在primary key ,unique 索引唯一索引，
-		索引范围扫描：查询条件 使用 < ,>,like,between甚至是 = 时使用范围扫描，
-					  范围越大就有可能使用全表扫描替代它	
-		索引跳跃扫描：复合索引
+# 三 扫描方式(全表扫描,索引扫描)
+	*表所选定的扫描方法被用来确定最终计划中所使用的[表联接方法和联接顺序]
+	全表扫描：此扫描是否高效取决于需要访问的数据块以及返回结果集行数
+	索引快速扫描：count(*) 走快速扫描
+	索引唯一扫描：查询条件 列存在primary key ,unique 索引唯一索引，
+	索引范围扫描：查询条件 使用 < ,>,like,between甚至是 = 时使用范围扫描，范围越大就有可能使用全表扫描替代它	
+	索引跳跃扫描：复合索引
 
 	
 
@@ -125,7 +124,7 @@
 
 
 
-一，存储中定义table和arr
+# 一，存储中定义table和arr
 
 		   TYPE MY_TABLE IS TABLE OF VARCHAR(20) INDEX BY BINARY_INTEGER;
 		   --数组类型(定长数组)
@@ -133,7 +132,7 @@
 
 
 
-二，存储过程返回结果集
+# 二，存储过程返回结果集
 
 		CREATE OR REPLACE PACKAGE BODY PKG_CODE_COMPARE IS
 
@@ -188,7 +187,7 @@
 		END PKG_CODE_COMPARE;
 
 
-三，列转行__行转列
+# 三，列转行__行转列
 	
 	v_nams:='0201,0203,0206'
 	
@@ -212,7 +211,7 @@
 
 
 
-JVM五大内存区域
+# JVM五大内存区域
 	1 [线程私有] 程序计数器:程序计数器是一块很小的内存空间，它是线程私有的，可以认作为当前线程的行号指示器。
 	2 [线程私有]Java栈（虚拟机栈）:每个方法被执行的时候都会创建一个栈帧用于存储局部变量表，操作栈，动态链接，方法出口等信息
 	3 [线程私有]本地方法栈:本地方法栈是与虚拟机栈发挥的作用十分相似,区别是虚拟机栈执行的是Java方法(也就是字节码)服务，而本地方法栈则为虚拟机使用到的native方法服务
@@ -220,69 +219,69 @@ JVM五大内存区域
 	4 [线程共享]堆:堆是java虚拟机管理内存最大的一块内存区域，因为堆存放的对象是线程共享的，所以多线程的时候也需要同步机制
 	5 [线程共享]方法区:用于存储已被虚拟机加载的类信息、常量、静态变量，如static修饰的变量加载类的时候就被加载到方法区中
 
-JVM调优
+# JVM调优
 
-Java堆：3~4倍Full GC后的老年代空间占用
-	-Xms 初始堆大小			
-	-Xmx 最大堆大小	
-	
-永久代：1.2~1.5倍Full GC后的永久代空间占用
-	-XX:PermSize			
-	-XX:MaxPermSize
-新生代：1.2~1.5倍Full GC后的老年代空间占用
-	-Xmn					
-老年代：2~3倍Full GC后的老年代空间占用
-	老年代 = Java堆-新生代	
-Survivor空间：survivor 空间大小 = -Xmn<value>/(-XX:SurvivorRatio=<ratio>+2)
-	-XX:SurvivorRatio=<ratio> 标识Survivor和Eden的比率
-	-XX:MaxTenuringThreshold=<n> 晋升阀值
-	
+	Java堆：3~4倍Full GC后的老年代空间占用
+		-Xms 初始堆大小			
+		-Xmx 最大堆大小	
 
-	
--Xloggc:d:\\jvm.log 输出GC日志文件
--XX:+PrintGCDateStamps 或 -XX:+PrintGCTimeStamps 打印GC时间 
--XX:+PrintGCDetails 打印GC详细信息
--XX:+PrintHeapAtGC  打印堆信息
--XX:+PrintAdaptiveSizePolicy  垃圾收集中Survivor空间的统计信息
--XX:+PrintCommandLineFlags 输出VM初始化堆大小
--XX:+PrintTenuringDistribution 监控晋升阀值（也就是对象经历MinitorGC次数后，提升至老年代）
+	永久代：1.2~1.5倍Full GC后的永久代空间占用
+		-XX:PermSize			
+		-XX:MaxPermSize
+	新生代：1.2~1.5倍Full GC后的老年代空间占用
+		-Xmn					
+	老年代：2~3倍Full GC后的老年代空间占用
+		老年代 = Java堆-新生代	
+	Survivor空间：survivor 空间大小 = -Xmn<value>/(-XX:SurvivorRatio=<ratio>+2)
+		-XX:SurvivorRatio=<ratio> 标识Survivor和Eden的比率
+		-XX:MaxTenuringThreshold=<n> 晋升阀值
 
 
--XX:+UseParallelGC         Throughput收集器
--XX:+UseConcMarkSweepGC    CMS收集器
-注意：通用原则：从Throughput收集器切换到CMS收集器，将老年代空间增大20%-30%
+
+	-Xloggc:d:\\jvm.log 输出GC日志文件
+	-XX:+PrintGCDateStamps 或 -XX:+PrintGCTimeStamps 打印GC时间 
+	-XX:+PrintGCDetails 打印GC详细信息
+	-XX:+PrintHeapAtGC  打印堆信息
+	-XX:+PrintAdaptiveSizePolicy  垃圾收集中Survivor空间的统计信息
+	-XX:+PrintCommandLineFlags 输出VM初始化堆大小
+	-XX:+PrintTenuringDistribution 监控晋升阀值（也就是对象经历MinitorGC次数后，提升至老年代）
 
 
-垃圾收集调优基础
-	垃圾收集性能的三个主要属性：
-			吞吐量：不考虑垃圾收集引起的停顿和内存消耗，最高性能指标()
-			延迟：度量标准是缩短垃圾收集引起的停顿时间，避免程序抖动
-			内存占用：垃圾收集器流畅运行所需要的内存数量
-			注意：其中一个性能的提高都是以其他两个属性性能损失为代价的
-	
-	垃圾收集器调优的三个基本原则：
-			MinorGC原则：每次MinorGC都尽可能多的收集垃圾对象，遵守这一原则可以减少应用程序触发FullGC，
-						 FullGC的持续时间总是最长，是应用程序无法达到其延迟和吞吐量的罪魁祸首
-			GC内存最大化原则：处理吞吐量和延迟问题时，垃圾处理器能使用的内存越大，即JAVA堆空间越大，
-							  垃圾收集效果越好，应用程序运行的也就越流畅
-			GC调优3选2原则：在这3个性能属性（吞吐量，延迟，内存）中任意选两个进行JVM垃圾收集调优
-	
-	正常GC指标：
-			1.MinorGC执行时间不到50ms
-			2.MinorGC执行不频繁，约10s一次
-			3.FullGC执行时间不到1s；
-			4.FullGC执行不算频繁，不低于10分钟一次
-			
-垃圾调优目的：			
-	减少对象从新生代提升老年代比率的方法
-	减少Eden的空间会导致频繁MinitorGC，频率越高对象老化速度越快
-	增大Survivor空间时保持Eden大小不变
+	-XX:+UseParallelGC         Throughput收集器
+	-XX:+UseConcMarkSweepGC    CMS收集器
+	注意：通用原则：从Throughput收集器切换到CMS收集器，将老年代空间增大20%-30%
 
-jmap -histo:live <vmid>   触发Full Gc
-	
-Tomcat的catalina.bat文件中设置
-	set JAVA_OPTS=-XX:+PrintGCDateStamps -XX:+PrintGCDetails 
-				  -XX:+PrintAdaptiveSizePolicy -Xloggc:d:\\jvm.log		
+
+	垃圾收集调优基础
+		垃圾收集性能的三个主要属性：
+				吞吐量：不考虑垃圾收集引起的停顿和内存消耗，最高性能指标()
+				延迟：度量标准是缩短垃圾收集引起的停顿时间，避免程序抖动
+				内存占用：垃圾收集器流畅运行所需要的内存数量
+				注意：其中一个性能的提高都是以其他两个属性性能损失为代价的
+
+		垃圾收集器调优的三个基本原则：
+				MinorGC原则：每次MinorGC都尽可能多的收集垃圾对象，遵守这一原则可以减少应用程序触发FullGC，
+							 FullGC的持续时间总是最长，是应用程序无法达到其延迟和吞吐量的罪魁祸首
+				GC内存最大化原则：处理吞吐量和延迟问题时，垃圾处理器能使用的内存越大，即JAVA堆空间越大，
+								  垃圾收集效果越好，应用程序运行的也就越流畅
+				GC调优3选2原则：在这3个性能属性（吞吐量，延迟，内存）中任意选两个进行JVM垃圾收集调优
+
+		正常GC指标：
+				1.MinorGC执行时间不到50ms
+				2.MinorGC执行不频繁，约10s一次
+				3.FullGC执行时间不到1s；
+				4.FullGC执行不算频繁，不低于10分钟一次
+
+	垃圾调优目的：			
+		减少对象从新生代提升老年代比率的方法
+		减少Eden的空间会导致频繁MinitorGC，频率越高对象老化速度越快
+		增大Survivor空间时保持Eden大小不变
+
+	jmap -histo:live <vmid>   触发Full Gc
+
+	Tomcat的catalina.bat文件中设置
+		set JAVA_OPTS=-XX:+PrintGCDateStamps -XX:+PrintGCDetails 
+					  -XX:+PrintAdaptiveSizePolicy -Xloggc:d:\\jvm.log		
 	 
 
 			
