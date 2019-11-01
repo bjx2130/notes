@@ -8,7 +8,7 @@
 ipconfig
 再然后，使用以下命令添加路由，指定回环数据也要先转发到网关（使用上一步获取本的本机ip和网关替换其中的<your_IP>和<gateway_IP>）：
 
-route add <your_IP> mask 255.255.255.255 <gateway_IP> metric 1
+route -p add <your_IP> mask 255.255.255.255 <gateway_IP> metric 1
 最后，查看路由表中路由是否已添加成功：
 
 route print
